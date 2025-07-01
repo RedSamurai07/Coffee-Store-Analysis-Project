@@ -1021,8 +1021,8 @@ Results:
 
 ### Insights
 - The highests weekly sales was on week number 31.
-- In weekdays Monday's, Wednesday & Friday had the most sales and on weekends Sunday had the moore number of the sales.
-- Coffee & Tea was the most frequently product category sold.
+- In weekdays Monday's, Wednesday & Friday had the most sales and on weekends Sunday had more number of the sales.
+- Coffee & Tea was the most frequently product sold.
 - The highest montly sales were on Aug, Sep, Oct, Nov, Dec
 - The Highest quantity were sold in Monson, Autumn & Winter Season.
 - The products with most quantity sold were Barista Expresso, Brewed Chai tea, Hot chocolate,Gourmet brewed coffee, brewed black tea.
@@ -1030,11 +1030,11 @@ Results:
 - Products with the highest stock wastage due to low demand are Branded and Packaged Chocolate
 
 ### Recommendations
-- Recommneded Inventory for the Coffee Store:*
-- Coffee, Tea, Bakery, Drinking Chocolate, Flavours, Coffee beans, Loose Tea.
-- Reduce the purcahse of Branded, packaged chocolate and sell it only on occassions.
--  Discount do affect the product Sales with respect to 0%, 10%, 20%. Ideally 10% recommended to attract more customers.*
--  On an average, we need to provide discounts or combo offers on these recommended products either on one of the weekdays or weekends.*
--  Introduce different flavours on different locations for more visit.
-- Coffee, Tea & Drinking Chocolate should be the most highlight on the menu with offers on specialb  occasions.*
-- Barista Espresso, Brewed Chai tea and Gourmet brewed coffee to be recommended more to professionals and elderly citizens to reduce type 2 diabetes and some cancers,as well as to improvr cognitive memory.
+- Strategically apply a 10% discount, as it is effective in attracting more customers.
+- Recommend Barista Espresso, Brewed Chai tea, and Gourmet brewed coffee, especially to professionals and elderly citizens and emphasize their potential health benefits, such as reducing the risk of type 2    diabetes and certain cancers, and improving cognitive memory.
+- Consider providing combo offers on recommended products, either on weekdays or weekends, to maximize sales.
+- Introduce different flavors at various store locations to cater to diverse customer preferences and increase visits.
+- Prominently highlight Coffee, Tea, and Drinking Chocolate on the menu.
+- Offer special promotions for these items during special occasions to boost sales.
+- Maintain optimal stock levels for high-demand items, including Coffee, Tea, Bakery items, Drinking Chocolate, Flavours, Coffee beans, and Loose Tea.
+- Reduce the purcahse of Branded, packaged chocolate and sell it only on occassions when necessary.
