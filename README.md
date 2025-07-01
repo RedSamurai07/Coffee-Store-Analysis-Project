@@ -117,6 +117,13 @@ df
 ``` python
 df.describe()
 ```
+Insights:
+- The median quantity sold per transaction was 1 item, with a maximum of 8 items purchased in a single order.
+- Store IDs ranged from 3 to 8, with a median of 5, indicating Store 5 may have had moderate to high activity.
+- Product IDs spanned 1 to 87, with the majority falling between 47 and 60, suggesting a central product cluster.
+- The average unit price was ₹3.38, most commonly between ₹2.50 and ₹3.75, while the highest-priced item reached ₹45.00.
+- Mean total transaction price was ₹4.69, with most sales totaling between ₹3 and ₹6; the highest spend recorded was ₹360.00.
+
 ![image](https://github.com/user-attachments/assets/bc2fcdb7-3bf9-46ea-9af3-b108d3b6eeb5)
 ``` python
 df.select_dtypes(include = 'object').describe()
@@ -124,11 +131,11 @@ df.select_dtypes(include = 'object').describe()
 ![image](https://github.com/user-attachments/assets/530c3a20-a71e-4ab6-bffb-27cb75486901)\
 **Descriptive Statistics**
 
-1.   The maximum transactions was on 27th March 2025 at 8:19 AM for about 22
-     times mostly occured.
-2.   Hell's kitchen had the highest profitable location.
-3.   The most popular category were Coffee was the most sold for about 21589.
-4.   Brewed Chai tea was the most frequently bought by the consumers at the coffee store.
+- June 19, 2023 marked the busiest day, recording 1,343 transactions.
+- The most frequent transaction time was 9:31:15 AM, logged 41 times.
+- Hell's Kitchen stood out as the top-performing location, handling 50,735 transactions.
+- Among product categories, Coffee emerged as the most popular, with approximately 21,589 units sold.
+- The Brewed Chai Tea topped the list as the most commonly purchased item by customers at the coffee store
 
 ### Sales performance
 
@@ -190,11 +197,18 @@ plt.show()
 weekly_sales.sort_values(by ='Total_Price' ,ascending = False)
 ![image](https://github.com/user-attachments/assets/439c1b1f-a38d-43fa-8ee7-bb45fdb9c823)
 ``` python
-print(weekly_sales.max())
+max_total_price = weekly_sales['Total_Price'].max()
+max_week = weekly_sales[weekly_sales['Total_Price'] == max_total_price]['week_number'].values[0]
+print("Week with the highest total sales:", max_week)
+print('Total Sales:',max_total_price)
 print('\t')
-print(weekly_sales.min())
+min_total_price = weekly_sales['Total_Price'].min()
+min_week = weekly_sales[weekly_sales['Total_Price'] == min_total_price]['week_number'].values[0]
+print("Week with the lowest total sales:", min_week)
+print('Total Sales:',min_total_price)
 ```
-![image](https://github.com/user-attachments/assets/2abf95e1-52f7-481e-a1c6-df642536f047)
+![image](https://github.com/user-attachments/assets/c72447c8-5c3e-46ff-ba30-c677e78ca5a9)
+
 ``` python
 df["transaction_date"] = pd.to_datetime(df["transaction_date"], errors='coerce')
 
