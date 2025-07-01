@@ -1,4 +1,4 @@
-# Coffee Store Analysis
+![image](https://github.com/user-attachments/assets/0297ae75-a0ce-47d3-84c1-16c4c41d0c03)![image](https://github.com/user-attachments/assets/fde6a4f0-feec-4da1-80b6-019b8c3ae92e)# Coffee Store Analysis
 
 ## Table of contents
 - [Project Overview](#project-overview)
@@ -49,6 +49,8 @@ The objective of this analysis is to:
  - Python
   
 ### Data Analysis
+1). Python
+
 - Importing Libraries
 ``` python
   import numpy as np
@@ -664,6 +666,314 @@ else:
     print("Fail to reject the null hypothesis. There is no significant difference in average sales revenue across store locations.")
 ```
 ![image](https://github.com/user-attachments/assets/acd44f6d-bed1-4eb2-aa5a-8a108db11b6b)
+
+2). SQL
+A). Sales Performance
+
+- What are the peak sales hours, and how do they vary by day of the week?
+``` sql
+SELECT
+FORMAT_TIMESTAMP('%A', transaction_date) AS weekday,
+EXTRACT(HOUR FROM transaction_time) AS hour,
+SUM(transaction_qty * unit_price) AS total_sales
+FROM coffee_store.Sales
+GROUP BY weekday, hour
+ORDER BY total_sales DESC;
+```
+Results:
+![image](https://github.com/user-attachments/assets/cec9e783-de07-4b0f-ac9b-a3b85bf51c71)
+
+- 	Which products generate the highest and lowest sales revenue?
+``` sql
+SELECT
+product_type,
+SUM(transaction_qty * unit_price) AS total_revenue
+FROM coffee_store.Sales
+GROUP BY product_type
+ORDER BY total_revenue DESC
+LIMIT 5;
+```
+Results:
+![image](https://github.com/user-attachments/assets/eecac50e-d8fd-46a3-a100-1a6ed8141612)
+- Highest Sales:
+![image](https://github.com/user-attachments/assets/32e294fb-dcc0-4976-8e3c-a8faf01e7cbd)
+- Lowest Sales
+![image](https://github.com/user-attachments/assets/cc50b03b-44cb-4d32-8c83-1a524b045526)
+
+- Are there seasonal trends affecting sales performance?
+``` sql
+SELECT
+EXTRACT(YEAR FROM transaction_date) AS year,
+EXTRACT(MONTH FROM transaction_date) AS month,
+SUM(transaction_qty * unit_price) AS total_sales
+FROM coffee_store.Sales
+GROUP BY year, month
+ORDER BY year, month;
+```
+Results:
+![image](https://github.com/user-attachments/assets/3e2938b2-27a1-47ef-8338-c2b786f7f4eb)
+
+-	Do weekends have significantly higher sales compared to weekdays?
+``` sql
+SELECT
+CASE
+WHEN FORMAT_TIMESTAMP('%A', transaction_date) IN ('Saturday', 'Sunday') THEN 'Weekend' ELSE 'Weekday'
+END AS day_type,
+SUM(transaction_qty * unit_price) AS total_sales
+FROM coffee_store.Sales
+GROUP BY day_type
+ORDER BY total_sales DESC;
+```
+Results:
+![image](https://github.com/user-attachments/assets/17afe0c2-5aa9-46c6-92f1-124faa20b4d8)
+
+B). Pricing Strategy & Revenue Optimization
+-	How does unit price affect the quantity sold?
+``` sql
+SELECT
+CORR(unit_price, transaction_qty) AS correlation
+FROM coffee_store.Sales;
+```
+![image](https://github.com/user-attachments/assets/f74b1c69-e1d0-4ce0-858b-132c735258c3)
+-In our case, there is a Negative correlation where it lead to fewer quantity sold.
+
+-	What is the average price elasticity of demand for different products?
+``` sql
+WITH price_changes AS (
+SELECT
+transaction_id,
+LAG(unit_price) OVER (PARTITION BY transaction_id ORDER BY transaction_date) AS prev_price,
+unit_price AS current_price,
+LAG(transaction_qty) OVER (PARTITION BY transaction_id ORDER BY transaction_date) AS prev_qty,
+transaction_qty AS current_qty
+FROM coffee_store.Sales
+),
+percentage_changes AS (
+SELECT
+transaction_id,
+((current_qty - prev_qty) / NULLIF(prev_qty, 0)) AS quantity_change_pct,
+((current_price - prev_price) / NULLIF(prev_price, 0)) AS price_change_pct
+FROM price_changes
+WHERE prev_price IS NOT NULL AND prev_qty IS NOT NULL
+)
+SELECT
+transaction_id,
+AVG(quantity_change_pct / NULLIF(price_change_pct, 0)) AS avg_price_elasticity
+FROM percentage_changes
+GROUP BY transaction_id
+ORDER BY avg_price_elasticity DESC;
+```
+Results:(Refer phython)
+
+- Are premium-priced products underperforming compared to budget-friendly items?
+``` sql
+WITH product_price_segments AS (
+SELECT
+product_id,
+unit_price,
+NTILE(3) OVER (ORDER BY unit_price) AS price_segment
+FROM (
+SELECT product_id, AVG(unit_price) AS unit_price
+FROM coffee_store.Sales
+GROUP BY product_id
+)
+),
+sales_performance AS (
+SELECT
+pps.price_segment,
+COUNT(DISTINCT s.product_id) AS total_products,
+SUM(s.transaction_qty * s.unit_price) AS total_revenue,
+SUM(s.transaction_qty) AS total_quantity_sold
+FROM coffee_store.Sales s
+JOIN product_price_segments pps ON s.product_id = pps.product_id
+GROUP BY pps.price_segment
+)
+SELECT
+    CASE
+        WHEN price_segment = 1 THEN 'Budget-Friendly'
+        WHEN price_segment = 2 THEN 'Mid-Range'
+        WHEN price_segment = 3 THEN 'Premium'
+    END AS price_category,
+    total_products,
+    total_revenue,
+    total_quantity_sold
+FROM sales_performance
+ORDER BY total_revenue DESC;
+```
+Results:
+![image](https://github.com/user-attachments/assets/93ed967a-1f4e-4964-bf07-54023ecb34d5)
+-In our case, Budget Friendly products were sold more and customers are price sensitive.
+Note:
+-	If premium-priced products have lower total sales revenue or lower quantity sold, they might be underperforming.
+-	If budget-friendly items dominate revenue, customers might be price-sensitive.
+-	If premium products perform well, pricing strategy is effective.
+
+C). Customer Behavior Analysis
+-	Which product categories are most frequently purchased together? (Market Basket Analysis)
+``` sql
+WITH product_combinations AS (
+SELECT
+t1.transaction_id,
+t1.product_category AS category_1,
+t2.product_category AS category_2
+FROM coffee_store.Sales t1
+JOIN coffee_store.Sales t2
+ON t1.transaction_id = t2.transaction_id
+AND t1.product_category < t2.product_category
+)
+SELECT
+category_1,
+category_2,
+COUNT(*) AS frequency,
+COUNT(*) * 1.0 / (SELECT COUNT(DISTINCT transaction_id) FROM coffee_store.Sales) AS support
+FROM product_combinations
+GROUP BY category_1, category_2
+ORDER BY frequency DESC
+LIMIT 10;
+```
+Results: (refer python)
+
+-	Are there specific time slots where customers buy more premium items?
+``` sql
+WITH PremiumItems AS (
+SELECT
+*,
+CASE
+WHEN unit_price > (SELECT AVG(unit_price) FROM coffee_store.Sales) THEN 'Premium'ELSE 'Regular'
+END AS item_category
+FROM coffee_store.Sales
+)
+SELECT
+EXTRACT(HOUR FROM transaction_time) AS hour,
+item_category,
+COUNT(transaction_id) AS total_transactions,
+SUM(transaction_qty * unit_price) AS total_sales
+FROM PremiumItems
+GROUP BY hour, item_category
+ORDER BY hour, item_category;
+```
+Results:
+![image](https://github.com/user-attachments/assets/8aa0a467-0d56-41f2-aecd-c9af54506729)
+
+-	What is the average transaction size per customer?
+``` sql
+SELECT
+transaction_id,
+SUM(transaction_qty * unit_price) / COUNT(DISTINCT transaction_id) AS avg_transaction_size
+FROM coffee_store.Sales
+GROUP BY transaction_id
+ORDER BY avg_transaction_size DESC;
+```
+Results:
+![image](https://github.com/user-attachments/assets/30283f03-00d9-45a8-86f4-945a52a3b998)
+
+D). Store Location Performance Analysis
+-	Which store locations have the highest/lowest revenue?
+``` sql
+SELECT
+store_location,
+SUM(transaction_qty * unit_price) AS total_revenue
+FROM coffee_store.Sales
+GROUP BY store_location
+ORDER BY total_revenue DESC;
+```
+Results:
+![image](https://github.com/user-attachments/assets/a1717a47-fd27-4833-a197-a6f9fe930e6d)
+In this case, Hell’s Kitchen has the highest revenue and Lower Manhattan has the lowest revenue.
+
+- Do different stores have different customer purchase behaviors?
+```sql
+SELECT
+    store_location,
+    COUNT(DISTINCT transaction_id) AS total_transactions,
+    SUM(transaction_id *transaction_qty) / COUNT(DISTINCT transaction_id) AS avg_transaction_value,
+    SUM(transaction_qty) / COUNT(DISTINCT transaction_id) AS avg_items_per_transaction
+FROM coffee_store.Sales
+GROUP BY store_location
+ORDER BY avg_transaction_value DESC;
+```
+Results:
+![image](https://github.com/user-attachments/assets/434c2176-50d2-4448-8bba-09715b1bbce9)
+
+E). Inventory & Waste Management
+- Which products experience the highest stock wastage due to low demand?
+Note: if we had total_stock_received then it would have helped with this formula : Stock wastage = total_stock_received - total_sold_quantity)
+``` sql
+WITH product_sales AS (
+SELECT
+product_category,
+SUM(transaction_qty) AS total_sold
+FROM coffee_store.Sales
+GROUP BY product_category
+),
+low_demand_products AS (
+SELECT
+product_category,
+total_sold
+FROM product_sales
+WHERE total_sold < (
+SELECT APPROX_QUANTILES(total_sold, 4)[OFFSET(1)] AS Q1
+FROM product_sales
+    )
+)
+SELECT
+ROW_NUMBER() OVER () AS rank,
+product_category,
+total_sold
+FROM low_demand_products;
+```
+Results:
+![image](https://github.com/user-attachments/assets/6511c986-9365-4838-9e3b-f02fd033341a)
+
+- 	How much inventory should be stocked based on expected demand?
+``` sql
+WITH weekly_sales AS (
+    SELECT
+        product_category,
+        EXTRACT(WEEK FROM transaction_date) AS week_number,
+        SUM(transaction_qty) AS total_weekly_sales
+    FROM coffee_store.Sales
+    GROUP BY product_category, week_number
+),
+average_weekly_sales AS (
+    SELECT
+        product_category,
+        AVG(total_weekly_sales) AS avg_sales_per_week
+    FROM weekly_sales
+    GROUP BY product_category
+)
+SELECT
+    aws.product_category,
+    (aws.avg_sales_per_week * 2) AS recommended_inventory -- 2 weeks safety stock
+FROM average_weekly_sales aws
+ORDER BY recommended_inventory DESC;
+```
+Results:
+![image](https://github.com/user-attachments/assets/1aea6fed-967b-41e6-aff5-6960bdb5ce5d)
+f). Marketing & Promotion Effectiveness
+-	How do discounts and promotions affect product sales?
+``` sql
+WITH price_changes AS (
+    SELECT
+        product_id,
+        transaction_date,
+        unit_price,
+        transaction_qty,  -- ✅ Add this column to be used in the final query
+        LAG(unit_price) OVER (PARTITION BY product_id ORDER BY transaction_date) AS prev_price
+    FROM coffee_store.Sales
+)
+SELECT
+    product_id,
+    COUNT(CASE WHEN prev_price > unit_price THEN 1 END) AS num_discount_events,
+    SUM(CASE WHEN prev_price > unit_price THEN transaction_qty ELSE 0 END) AS total_sold_with_discount,
+    SUM(transaction_qty) AS total_quantity_sold,
+    (SUM(CASE WHEN prev_price > unit_price THEN transaction_qty ELSE 0 END) * 100.0 / NULLIF(SUM(transaction_qty), 0)) AS discount_sales_percentage
+FROM price_changes
+GROUP BY product_id
+ORDER BY discount_sales_percentage DESC;
+```
+Results:
+![image](https://github.com/user-attachments/assets/b40e0985-a07b-419b-9039-4bc3e9e9965d)
 
 ### Insights
 - The highests weekly sales was on week number 31.
