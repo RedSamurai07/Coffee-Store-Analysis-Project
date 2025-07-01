@@ -294,10 +294,286 @@ seasons_table
 ![image](https://github.com/user-attachments/assets/82bde03a-1ede-467e-9fa3-32cf96847937)
 
 ### Pricing Strategy & Revenue Optimization
+``` python
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='unit_price', y='transaction_qty', data=df)
+plt.xlabel('Unit Price')
+plt.ylabel('Transaction Quantity')
+plt.title('Relationship between Unit Price and Transaction Quantity')
+plt.show()
 
+correlation = df['unit_price'].corr(df['transaction_qty'])
+print(f"Correlation between Unit Price and Transaction Quantity: {correlation}")
+```
+![image](https://github.com/user-attachments/assets/c620bf3f-5d40-4808-8713-4bb87620fd0e)
+- There is no co-orelation between Transaction Quamntity and Unit price.
+``` python
+transact_table = pd.pivot_table(df, index = 'transaction_qty', values = 'unit_price').reset_index()
+transact_table.index = list(range(1,transact_table.shape[0]+1))
+transact_table
+```
+![image](https://github.com/user-attachments/assets/774f4c5f-109b-4719-82ab-2f72a3af6600)
+``` python
+aggregated_sales = df.groupby(['product_type'])['Total_Price'].sum().reset_index().sort_values(by = 'Total_Price',ascending = False)
 
+plt.figure(figsize=(18, 8))
+sns.barplot(x='product_type', y='Total_Price', data=aggregated_sales)
+plt.title('Sales by product Category')
+plt.xlabel('Products')
+plt.ylabel('Total Sales')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
 
+for p in plt.gca().patches:
+    plt.gca().annotate(f'{p.get_height():.0f}',
+                       (p.get_x() + p.get_width() / 2., p.get_height()),
+                       ha='center', va='center_baseline',
+                       fontsize=12, color='black', xytext=(0, 5),
+                       textcoords='offset points')
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/e1fd404f-4bb2-4724-9a10-02582ed44d65)
+``` python
+product_performance = df.groupby('product_category').agg({'Total_Price': 'sum', 'unit_price': 'mean'}).reset_index()
+product_performance['sales_per_unit_price'] = product_performance['Total_Price'] / product_performance['unit_price']
+product_performance = product_performance.sort_values('unit_price', ascending=False)
+product_performance.index = list(range(1,product_performance.shape[0]+1))
+print(product_performance)
 
+plt.figure(figsize=(10, 5))
+sns.scatterplot(x='unit_price', y='Total_Price', data=product_performance, size='sales_per_unit_price', sizes=(20, 200))
+plt.xlabel('Average Unit Price')
+plt.ylabel('Total Sales')
+plt.title('Product Performance by Price and Sales')
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/8a1c8316-fb27-4b23-ab99-dccc0b683b13)
+
+### Customer Behavior Analysis
+A). Market Basket Analysis
+``` python
+customer_frequency = df.groupby("transaction_id")["transaction_date"].count().reset_index()
+customer_frequency.rename(columns={"transaction_date": "purchase_frequency"}, inplace=True)
+
+customer_frequency["frequency_segment"] = pd.cut(
+    customer_frequency["purchase_frequency"],
+    bins=3,
+    labels=["Occasional", "Regular", "Frequent"]
+)
+customer_spending = df.groupby("transaction_id")["Total_Price"].sum().reset_index()
+customer_spending.rename(columns={"Total_Price": "total_spent"}, inplace=True)
+
+customer_segments = pd.merge(customer_frequency, customer_spending, on="transaction_id", how="left")
+
+customer_segments["spending_segment"] = pd.cut(
+    customer_segments["total_spent"],
+    bins=3,
+    labels=["Low Spender", "Medium Spender", "High Spender"]
+)
+crosstab_segments = pd.crosstab(
+    customer_segments["spending_segment"],
+    customer_segments["frequency_segment"]
+)
+```
+``` python
+basket = df.groupby('product_type')[['transaction_qty','Total_Price']].sum().reset_index().sort_values(by ='transaction_qty',ascending = False)
+basket.index = list(range(1,basket.shape[0]+1))
+basket.head(5)
+```
+![image](https://github.com/user-attachments/assets/d314e52a-c611-4d1e-b8f7-2977199ebbe4)
+``` python
+plt.figure(figsize=(12, 6))
+sns.barplot(hue='product_type', y='transaction_qty', data=basket.head())
+plt.xlabel('Product Type')
+plt.ylabel('Transaction Quantity')
+plt.title('Product Types by Transaction Quantity')
+plt.xticks(rotation=45, ha='right')
+for p in plt.gca().patches:
+    plt.gca().annotate(f'{p.get_height():.0f}',
+                       (p.get_x() + p.get_width() / 2., p.get_height()),
+                       ha='center', va='center_baseline',
+                       fontsize=12, color='black', xytext=(0, 5),
+                       textcoords='offset points')
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/bcf33959-9a8b-42f6-9e20-a025574a9b35)
+``` python
+hourly_prod_sales = df.groupby('hour')['Total_Price'].sum().reset_index().sort_values(by = 'Total_Price', ascending = False)
+sns.lineplot(data=hourly_prod_sales, x="hour", y="Total_Price", marker="o", linewidth=2, color="green")
+hourly_prod_sales
+```
+![image](https://github.com/user-attachments/assets/0221c53c-9bc4-41b7-93a9-21488229790c)
+one more graph need to be added
+``` python
+product_transaction_counts = df.groupby('product_type')['transaction_id'].count().reset_index().sort_values(by = 'transaction_id',ascending = False)
+product_transaction_counts.index = list(range(1,product_transaction_counts.shape[0]+1))
+product_transaction_counts.head()
+```
+![image](https://github.com/user-attachments/assets/731534ae-045a-4e7f-8d16-630619c27ae3)
+``` python
+plt.figure(figsize=(12, 6))
+sns.barplot(hue='product_type', y='transaction_id', data=product_transaction_counts.sort_values(by = 'transaction_id',ascending = False).head())
+plt.xlabel('Product Type')
+plt.ylabel('Number of Transactions')
+plt.title('Number of Transactions per Product Type')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+for p in plt.gca().patches:
+    plt.gca().annotate(f'{p.get_height():.0f}',
+                       (p.get_x() + p.get_width() / 2., p.get_height()),
+                       ha='center', va='center_baseline',
+                       fontsize=12, color='black', xytext=(0, 5),
+                       textcoords='offset points')
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/ecf714d3-fedb-45c7-af1d-32333802e559)
+
+### Store Location Performance Analysis
+``` python
+store_revenue = df.groupby('store_location')['Total_Price'].sum()
+
+# store with the highest revenue
+highest_revenue_store = store_revenue.idxmax()
+highest_revenue = store_revenue.max()
+
+# store with the lowest revenue
+lowest_revenue_store = store_revenue.idxmin()
+lowest_revenue = store_revenue.min()
+
+print(f"Store with highest revenue: {highest_revenue_store} (${highest_revenue:.2f})")
+print(f"Store with lowest revenue: {lowest_revenue_store} (${lowest_revenue:.2f})")
+```
+![image](https://github.com/user-attachments/assets/22024e14-97a3-42b3-a2da-03358e3577de)
+``` python
+store_performance = df.groupby('store_location').agg({'Total_Price': 'sum', 'transaction_id': 'count'})
+store_performance['Average_Transaction_Value'] = store_performance['Total_Price'] / store_performance['transaction_id']
+print(store_performance)
+
+plt.figure(figsize=(10, 6))
+sns.barplot(x=store_performance.index, y='Average_Transaction_Value', data=store_performance)
+plt.xlabel('Store Location')
+plt.ylabel('Average Transaction Value')
+plt.title('Average Transaction Value per Store Location')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/22a258cf-6bd1-4be7-8a44-74156fa41e79)
+
+### Inventory & Waste Management
+``` python
+product_sales = df.groupby('product_category')['transaction_qty'].sum()
+low_demand_products = product_sales[product_sales < product_sales.quantile(0.25)].reset_index()
+print("Products with the highest stock wastage due to low demand:")
+low_demand_products.index = list(range(1,low_demand_products.shape[0]+1))
+low_demand_products
+```
+![image](https://github.com/user-attachments/assets/60c87df0-5960-4cba-82e2-4ba9d2ad657c)
+``` python
+average_weekly_sales = df.groupby(['product_category', 'week_number'])['transaction_qty'].sum().groupby('product_category').mean()
+# Setting a safety stock level (You might need to adjust this based on our business needs and product characteristics).
+safety_stock = 2
+
+# Calculating the recommended inventory level.
+recommended_inventory = (average_weekly_sales * safety_stock).astype(int).reset_index().sort_values(by ='transaction_qty', ascending = False )
+
+print("Recommended Inventory Levels:")
+recommended_inventory.index = list(range(1,recommended_inventory.shape[0]+1))
+recommended_inventory
+```
+![image](https://github.com/user-attachments/assets/2e6e6148-e8c5-4d18-8281-f057f0e9d50e)
+``` python
+plt.figure(figsize=(12, 6))
+sns.barplot(hue='product_category', y='transaction_qty', data=recommended_inventory.sort_values(by = 'transaction_qty',ascending = False).head())
+plt.xlabel('Product Type')
+plt.ylabel('Number of Transactions')
+plt.title('Number of Transactions per Product Type')
+plt.xticks(rotation=45, ha='right')
+plt.tight_layout()
+for p in plt.gca().patches:
+    plt.gca().annotate(f'{p.get_height():.0f}',
+                       (p.get_x() + p.get_width() / 2., p.get_height()),
+                       ha='center', va='center_baseline',
+                       fontsize=12, color='black', xytext=(0, 5),
+                       textcoords='offset points')
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/d9081cce-f5a7-4d4c-b555-6ca7631862c9)
+
+### Marketing & Promotion Effectiveness
+```
+np.random.seed(42)
+df['discount'] = np.random.choice([0, 0.1, 0.15, 0.2], size=len(df)) # Simulating 0%, 10%, or 20% discount
+
+df['discounted_price'] = df['unit_price'] * (1 - df['discount'])
+df['discounted_total_price'] = df['transaction_qty'] * df['discounted_price']
+
+discount_sales = df.groupby('discount')['discounted_total_price'].sum().reset_index()
+
+plt.figure(figsize=(7, 5))
+sns.barplot(x='discount', y='discounted_total_price', data=discount_sales)
+plt.xlabel('Discount Percentage')
+plt.ylabel('Total Discounted Sales')
+plt.title('Impact of Discounts on Total Sales')
+for p in plt.gca().patches:
+    plt.gca().annotate(f'{p.get_height():.0f}',
+                       (p.get_x() + p.get_width() / 2., p.get_height()),
+                       ha='center', va='center_baseline',
+                       fontsize=12, color='black', xytext=(0, 5),
+                       textcoords='offset points')
+plt.show()
+print(discount_sales)
+```
+![image](https://github.com/user-attachments/assets/c4f887d3-63e5-4184-bb1c-4ad0a3bad367)
+Discount vs Without Discount
+``` python
+# Creating a new column to categorize transactions
+df['has_discount'] = df['discount'].apply(lambda x: 'With Discount' if x > 0 else 'Without Discount')
+
+# Calculating average transaction value for each category
+avg_transact_value = df.groupby('has_discount')['discounted_total_price'].mean().reset_index()
+
+plt.figure(figsize=(10,7))
+sns.barplot(x='has_discount', y='discounted_total_price', data=avg_transact_value, palette='coolwarm')
+
+plt.xlabel('Discount Category')
+plt.ylabel('Average Transaction Value')
+plt.title('Average Transaction Value: With vs Without Discount')
+for p in plt.gca().patches:
+    height = p.get_height()
+    plt.gca().annotate(f'{height:.0f}',
+                       (p.get_x() + p.get_width() / 2., height),
+                       ha='center', va='bottom',
+                       fontsize=12, color='black',
+                       xytext=(0, 5), textcoords='offset points')
+
+plt.tight_layout()
+plt.show()
+print(avg_transact_value)
+```
+![image](https://github.com/user-attachments/assets/5434441c-5e77-46cf-b694-028ccc601b14)
+``` python
+highest_sales_discount = discount_sales.loc[discount_sales['discounted_total_price'].idxmax()]
+print(f"Discount with highest total sales: {highest_sales_discount}")
+```
+![image](https://github.com/user-attachments/assets/1b302a02-27b1-40fe-95ce-9f1788eb2621)
+``` python
+highest_avg_transaction_discount = avg_transact_value.loc[avg_transact_value['discounted_total_price'].idxmax()]
+print(f"Discount with highest average transaction value: {highest_avg_transaction_discount}")
+```
+![image](https://github.com/user-attachments/assets/09e689f4-2dba-4b41-9add-3df61b2b071c)
+
+``` python
+# To Analyze average transaction value with and without discounts
+avg_transact_value = df.groupby('discount')['discounted_total_price'].mean().reset_index()
+
+# To Find out the discount level with the highest average transaction value
+highest_avg_transaction_discount = avg_transact_value.loc[avg_transact_value['discounted_total_price'].idxmax()]
+print(f"Discount with highest average transaction value: {highest_avg_transaction_discount}")
+```
+![image](https://github.com/user-attachments/assets/4e51db79-ecd3-4700-a370-2de97480d935)
+
+## Hypothesis testing:
 
 
 ### Insights
