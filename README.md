@@ -151,11 +151,21 @@ hourly_sales = df.groupby("hour")["Total_Price"].sum().reset_index()
 
 
 ### Insights
+- The highests weekly sales was on week number 31.
+- In weekdays Monday's, Wednesday & Friday had the most sales and on weekends Sunday had the moore number of the sales.
+- Coffee & Tea was the most frequently product category sold.
+- The highest montly sales were on Aug, Sep, Oct, Nov, Dec
+- The Highest quantity were sold in Monson, Autumn & Winter Season.
+- The products with most quantity sold were Barista Expresso, Brewed Chai tea, Hot chocolate,Gourmet brewed coffee, brewed black tea.
+- The store location with the highest revenue is Hell's Kitchen.
+- Products with the highest stock wastage due to low demand are Branded and Packaged Chocolate
 
 ### Recommendations
-
-
-
-
-
-
+- Recommneded Inventory for the Coffee Store:*
+- Coffee, Tea, Bakery, Drinking Chocolate, Flavours, Coffee beans, Loose Tea.
+- Reduce the purcahse of Branded, packaged chocolate and sell it only on occassions.
+-  Discount do affect the product Sales with respect to 0%, 10%, 20%. Ideally 10% recommended to attract more customers.*
+-  On an average, we need to provide discounts or combo offers on these recommended products either on one of the weekdays or weekends.*
+-  Introduce different flavours on different locations for more visit.
+- Coffee, Tea & Drinking Chocolate should be the most highlight on the menu with offers on specialb  occasions.*
+- Barista Espresso, Brewed Chai tea and Gourmet brewed coffee to be recommended more to professionals and elderly citizens to reduce type 2 diabetes and some cancers,as well as to improvr cognitive memory.
