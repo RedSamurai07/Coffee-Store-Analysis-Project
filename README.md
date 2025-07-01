@@ -267,25 +267,16 @@ monthly_sales['Season'] = monthly_sales['month_name'].apply(lambda x: assign_sea
 monthly_sales
 ```
 ![image](https://github.com/user-attachments/assets/0a341400-99d1-414f-a88a-aa635a98d109)
-``` python
-plt.figure(figsize=(12, 6))
-sns.barplot(x='Season', y='Total_Price', data=monthly_sales, palette="viridis")
-plt.xlabel('Seasons')
-plt.ylabel('Total Sales')
-plt.title('Seasonal Sales Trend')
-plt.tight_layout()
+``` pythonseasonal_sales = monthly_sales.groupby('Season')['Total_Price'].sum()
 
-# Text Values
-for p in plt.gca().patches:
-    height = p.get_height()
-    plt.gca().annotate(f'{height:.0f}',
-                       (p.get_x() + p.get_width() / 2., height),
-                       ha='center', va='bottom', 
-                       fontsize=12, color='black',
-                       xytext=(0, 5), textcoords='offset points')
+plt.figure(figsize=(8, 8))
+plt.pie(seasonal_sales, labels=seasonal_sales.index, 
+        autopct='%1.1f%%', startangle=140, colors=sns.color_palette("viridis", len(seasonal_sales)))
+plt.title('Seasonal Sales Distribution')
+plt.tight_layout()
 plt.show()
 ```
-![image](https://github.com/user-attachments/assets/183d3ffb-5299-4147-83de-a31d16d65afd)
+![image](https://github.com/user-attachments/assets/2cbed06d-2de2-4405-98d0-9451a47803d7)
 ``` python
 seasons_table = pd.pivot_table(monthly_sales, index = 'Season', values = 'Total_Price').reset_index()
 seasons_table.index = list(range(1,seasons_table.shape[0]+1))
