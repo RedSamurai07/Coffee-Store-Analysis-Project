@@ -43,13 +43,112 @@ The objective of this analysis is to:
 | product_type     | Subcategory of the product | object |
 | product_detail   | Detailed name of the specific product. | object |
 
-
 ### Tools
  - Excel
  - SQL
  - Python
   
 ### Data Analysis
+- Importing Libraries
+``` python
+  import numpy as np
+  import pandas as pd
+  import matplotlib.pyplot as plt
+  import seaborn as sns
+  import warnings
+  warnings.filterwarnings('ignore')
+```
+- Loading the dataset
+``` python  
+df = pd.read_csv('transactions.csv')
+df.head()
+```
+![image](https://github.com/user-attachments/assets/c5e51c21-09a6-4dd7-b628-69771407ba7f)
+- Dimension and Shape of the dataset
+``` python
+df.ndim
+```
+![image](https://github.com/user-attachments/assets/c5059414-7df6-4586-85e3-57a5a792a862)
+``` python
+df.shape
+```
+![image](https://github.com/user-attachments/assets/173a1f23-16ac-43f4-9898-542ff7547ac2)
+- Information of the Dataset
+``` python
+df.info()
+```
+![image](https://github.com/user-attachments/assets/c6fbebc9-0ce5-498b-9430-acf27c86cce3)
+- Dropping unwanted columns for analysis
+``` python
+df.drop('product_detail',axis = 1, inplace = True)
+df.index = list(range(1,df.shape[0]+1))
+```
+- Checking for Null/Nan values in all the columns and rows
+``` python
+df.isna().sum()/len(df)*100
+```
+![image](https://github.com/user-attachments/assets/6bee514d-7554-47ae-a513-4e9bf310fa4f)
+``` python
+df.duplicated().sum()
+```
+![image](https://github.com/user-attachments/assets/1a9b4b8a-28b7-4e0e-ae98-b80e483c9da2)
+- Feature Engineering
+``` python
+df['Total_Price'] = df['transaction_qty'] * df['unit_price']
+customer_spending = df.groupby("transaction_id")["Total_Price"].sum().reset_index()
+customer_spending["spending_segment"] = pd.qcut(customer_spending["Total_Price"], q=3, labels=["Low", "Medium", "High"])
+df = df.merge(customer_spending[["transaction_id", "spending_segment"]], on="transaction_id", how="left")
+df.head()
+```
+![image](https://github.com/user-attachments/assets/4da663f6-19b6-4bf0-8f59-ca440cb69464)
+```python
+pd.crosstab(df['transaction_id'], df['spending_segment']).sum()
+```
+![image](https://github.com/user-attachments/assets/10db472f-affb-4eda-80d4-3db26ee1c10d)
+- Converting index from 1 to N
+``` python
+df.index = list(range(1,df.shape[0]+1))
+df
+```
+![image](https://github.com/user-attachments/assets/207bdc5e-e79a-48c4-8680-a05ecf37b7c3)
+- Descriptive Statistics
+``` python
+df.describe()
+```
+![image](https://github.com/user-attachments/assets/bc2fcdb7-3bf9-46ea-9af3-b108d3b6eeb5)
+``` python
+df.select_dtypes(include = 'object').describe()
+```
+![image](https://github.com/user-attachments/assets/530c3a20-a71e-4ab6-bffb-27cb75486901)\
+**Descriptive Statistics**
+
+1.   The maximum transactions was on 27th March 2025 at 8:19 AM for about 22
+     times mostly occured.
+2.   Hell's kitchen had the highest profitable location.
+3.   The most popular category were Coffee was the most sold for about 21589.
+4.   Brewed Chai tea was the most frequently bought by the consumers at the coffee store.
+
+### Sales performance
+
+``` python
+df["transaction_date"] = pd.to_datetime(df["date"], errors='coerce')
+df["weekday"] = df["transaction_date"].dt.day_name()
+weekday_sales = df.groupby("weekday")["Total_Price"].sum().reset_index()
+weekday_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+weekday_sales = weekday_sales.set_index("weekday").reindex(weekday_order).reset_index()
+```
+``` python
+df['hour'] = df['transaction_time']
+hourly_sales = df.groupby('hour')['Total_Price'].sum().reset_index()
+hourly_sales.index = list(range(1,hourly_sales.shape[0]+1))
+hourly_sales
+```
+![image](https://github.com/user-attachments/assets/3f994075-ae13-4fe2-b3b6-334784e30e8e)
+``` python
+hourly_sales = df.groupby("hour")["Total_Price"].sum().reset_index()
+```
+
+
 
 ### Insights
 
