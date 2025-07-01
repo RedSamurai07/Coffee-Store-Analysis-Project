@@ -137,6 +137,8 @@ weekday_sales = df.groupby("weekday")["Total_Price"].sum().reset_index()
 weekday_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 weekday_sales = weekday_sales.set_index("weekday").reindex(weekday_order).reset_index()
 ```
+
+A). Hourly Sales
 ``` python
 df['hour'] = df['transaction_time']
 hourly_sales = df.groupby('hour')['Total_Price'].sum().reset_index()
@@ -147,6 +149,154 @@ hourly_sales
 ``` python
 hourly_sales = df.groupby("hour")["Total_Price"].sum().reset_index()
 ```
+``` python
+# Plot of peak sales hours
+plt.figure(figsize=(18, 9))
+sns.scatterplot(x="hour", y="Total_Price", data=hourly_sales, palette="Blues")
+plt.xlabel("Hour of the Day")
+plt.ylabel("Total Sales")
+plt.title("Peak Sales Hours")
+plt.xticks(range(0, 24))
+for p in plt.gca().patches:
+    plt.gca().annotate(f'{p.get_height():.0f}',
+                       (p.get_x() + p.get_width() / 2., p.get_height()),
+                       ha='center', va='center',
+                       fontsize=10, color='black', xytext=(0, 5),
+                       textcoords='offset points')
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/cd443250-a37b-4913-86ed-1aaf80bbb9a2)
+
+B). Weekly Sales
+``` python
+df["transaction_date"] = pd.to_datetime(df["transaction_date"], errors='coerce')
+df["week_number"] = df["transaction_date"].dt.isocalendar().week
+
+weekly_sales = df.groupby("week_number")["Total_Price"].sum().reset_index()
+
+# Plot weekly sales
+plt.figure(figsize=(14, 8))
+sns.lineplot(data=weekly_sales, x="week_number", y="Total_Price", marker="o", linewidth=2, color="green")
+plt.xlabel("Week Number")
+plt.ylabel("Total Sales ($)")
+plt.title("Total Sales per Week")
+plt.xticks(range(weekly_sales["week_number"].min(), weekly_sales["week_number"].max() + 1))
+plt.grid(False)
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/b5718029-3806-4e1e-9549-1843f33e27ea)
+weekly_sales.sort_values(by ='Total_Price' ,ascending = False)
+![image](https://github.com/user-attachments/assets/439c1b1f-a38d-43fa-8ee7-bb45fdb9c823)
+``` python
+print(weekly_sales.max())
+print('\t')
+print(weekly_sales.min())
+```
+![image](https://github.com/user-attachments/assets/2abf95e1-52f7-481e-a1c6-df642536f047)
+``` python
+df["transaction_date"] = pd.to_datetime(df["transaction_date"], errors='coerce')
+
+df["week_number"] = df["transaction_date"].dt.isocalendar().week
+df["weekday"] = df["transaction_date"].dt.day_name()
+
+weekly_sales_heatmap = df.pivot_table(values="Total_Price", index="week_number", columns="weekday", aggfunc="sum")
+
+weekday_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+weekly_sales_heatmap = weekly_sales_heatmap[weekday_order]
+
+plt.figure(figsize=(12, 8))
+sns.heatmap(weekly_sales_heatmap, cmap="YlGnBu", linewidths= 0.5, annot=True, fmt=".0f")
+plt.xlabel("Day of the Week")
+plt.ylabel("Week Number")
+plt.title("Weekly Sales Heatmap")
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/607733e2-724c-4ce6-b0db-5a91eeb2c40d)
+``` python
+weekly_sales_heatmap.sum()
+```
+![image](https://github.com/user-attachments/assets/9f9d96f3-5daf-4a1f-93f6-2e964145656b)
+
+C). Product wise Sales
+``` python
+Product_sales = df.groupby('product_category')['Total_Price'].sum().sort_values(ascending = False)
+Product_sales.reset_index()
+```
+![image](https://github.com/user-attachments/assets/cdc56da8-5441-450d-8df2-2b257c9e5596)
+
+D). Seasonal wise Sales Perfromance
+``` python
+df['month'] = df['transaction_date'].dt.month
+
+monthly_sales = df.groupby('month')['Total_Price'].sum().reset_index()
+
+plt.figure(figsize=(12, 6))
+sns.lineplot(x='month', y='Total_Price', data=monthly_sales, marker='o')
+plt.xlabel('Month')
+plt.ylabel('Total Sales')
+plt.title('Monthly Sales Trend')
+plt.xticks(range(1, 13))
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/04cb6c97-b0fb-42d8-8b4e-071895ae201a)
+``` python
+month_names = {
+    1: 'January', 2: 'February', 3: 'March', 4: 'April', 5: 'May', 6: 'June',
+    7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December'
+}
+
+monthly_sales['month_name'] = monthly_sales['month'].map(month_names)
+monthly_sales = monthly_sales.rename(columns={'month': 'month_number'})
+pd.pivot_table(monthly_sales, index = 'month_name', values = 'Total_Price').reset_index()
+```
+![image](https://github.com/user-attachments/assets/2063bc0e-a9ca-4943-b0b9-2ac231d23009)
+``` python
+def assign_season(month):
+    if month in [12, 1, 2]:
+        return 'Winter'
+    elif month in [3, 4, 5, 6]:
+        return 'Summer'
+    elif month in [7, 8, 9]:
+        return 'Monsoon'
+    elif month in [10, 11]:
+        return 'Autumn'
+    else:
+        return 'Unknown'
+
+monthly_sales['Season'] = monthly_sales['month_name'].apply(lambda x: assign_season(list(month_names.keys())[list(month_names.values()).index(x)]))
+monthly_sales
+```
+![image](https://github.com/user-attachments/assets/0a341400-99d1-414f-a88a-aa635a98d109)
+``` python
+plt.figure(figsize=(12, 6))
+sns.barplot(x='Season', y='Total_Price', data=monthly_sales, palette="viridis")
+plt.xlabel('Seasons')
+plt.ylabel('Total Sales')
+plt.title('Seasonal Sales Trend')
+plt.tight_layout()
+
+# Text Values
+for p in plt.gca().patches:
+    height = p.get_height()
+    plt.gca().annotate(f'{height:.0f}',
+                       (p.get_x() + p.get_width() / 2., height),
+                       ha='center', va='bottom', 
+                       fontsize=12, color='black',
+                       xytext=(0, 5), textcoords='offset points')
+plt.show()
+```
+![image](https://github.com/user-attachments/assets/183d3ffb-5299-4147-83de-a31d16d65afd)
+``` python
+seasons_table = pd.pivot_table(monthly_sales, index = 'Season', values = 'Total_Price').reset_index()
+seasons_table.index = list(range(1,seasons_table.shape[0]+1))
+seasons_table
+```
+![image](https://github.com/user-attachments/assets/82bde03a-1ede-467e-9fa3-32cf96847937)
+
+### Pricing Strategy & Revenue Optimization
+
+
+
 
 
 
