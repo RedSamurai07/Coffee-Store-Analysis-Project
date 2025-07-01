@@ -44,9 +44,9 @@ The objective of this analysis is to:
 | product_detail   | Detailed name of the specific product. | object |
 
 ### Tools
- - Excel
- - SQL
- - Python
+- Excel : (Google Sheets) -
+- SQL : Big QueryStudio - Querying, manipulating, and managing data in relational databases in 
+- Python: Google Colab - Data Preparation and pre-processing, Exploratory Data Analysis, Descriptive Statistics, inferential Statistics, Data manipulation and Analysis(Numpy, Pandas),Visualization (Matplotlib, Seaborn), Feature Engineering, Hypothesis Testing
   
 ### Data Analysis
 1). Python
@@ -1032,6 +1032,8 @@ Results:
 ### Recommendations
 - Strategically apply a 10% discount, as it is effective in attracting more customers.
 - Recommend Barista Espresso, Brewed Chai tea, and Gourmet brewed coffee, especially to professionals and elderly citizens and emphasize their potential health benefits, such as reducing the risk of type 2    diabetes and certain cancers, and improving cognitive memory.
+- Adjust store operating hours and staffing based on peak demand.
+-	Promote low-selling items through discounts or bundle offers.
 - Consider providing combo offers on recommended products, either on weekdays or weekends, to maximize sales.
 - Introduce different flavors at various store locations to cater to diverse customer preferences and increase visits.
 - Prominently highlight Coffee, Tea, and Drinking Chocolate on the menu.
