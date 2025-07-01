@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/0297ae75-a0ce-47d3-84c1-16c4c41d0c03)![image](https://github.com/user-attachments/assets/fde6a4f0-feec-4da1-80b6-019b8c3ae92e)# Coffee Store Analysis
+# Coffee Store Analysis
 
 ## Table of contents
 - [Project Overview](#project-overview)
@@ -668,6 +668,7 @@ else:
 ![image](https://github.com/user-attachments/assets/acd44f6d-bed1-4eb2-aa5a-8a108db11b6b)
 
 2). SQL
+
 A). Sales Performance
 
 - What are the peak sales hours, and how do they vary by day of the week?
@@ -680,8 +681,11 @@ FROM coffee_store.Sales
 GROUP BY weekday, hour
 ORDER BY total_sales DESC;
 ```
+
 Results:
+
 ![image](https://github.com/user-attachments/assets/cec9e783-de07-4b0f-ac9b-a3b85bf51c71)
+
 
 - 	Which products generate the highest and lowest sales revenue?
 ``` sql
@@ -693,11 +697,17 @@ GROUP BY product_type
 ORDER BY total_revenue DESC
 LIMIT 5;
 ```
+
 Results:
+
 ![image](https://github.com/user-attachments/assets/eecac50e-d8fd-46a3-a100-1a6ed8141612)
+
 - Highest Sales:
+
 ![image](https://github.com/user-attachments/assets/32e294fb-dcc0-4976-8e3c-a8faf01e7cbd)
+
 - Lowest Sales
+
 ![image](https://github.com/user-attachments/assets/cc50b03b-44cb-4d32-8c83-1a524b045526)
 
 - Are there seasonal trends affecting sales performance?
@@ -710,7 +720,9 @@ FROM coffee_store.Sales
 GROUP BY year, month
 ORDER BY year, month;
 ```
+
 Results:
+
 ![image](https://github.com/user-attachments/assets/3e2938b2-27a1-47ef-8338-c2b786f7f4eb)
 
 -	Do weekends have significantly higher sales compared to weekdays?
@@ -724,7 +736,9 @@ FROM coffee_store.Sales
 GROUP BY day_type
 ORDER BY total_sales DESC;
 ```
+
 Results:
+
 ![image](https://github.com/user-attachments/assets/17afe0c2-5aa9-46c6-92f1-124faa20b4d8)
 
 B). Pricing Strategy & Revenue Optimization
@@ -734,7 +748,10 @@ SELECT
 CORR(unit_price, transaction_qty) AS correlation
 FROM coffee_store.Sales;
 ```
+Results:
+
 ![image](https://github.com/user-attachments/assets/f74b1c69-e1d0-4ce0-858b-132c735258c3)
+
 -In our case, there is a Negative correlation where it lead to fewer quantity sold.
 
 -	What is the average price elasticity of demand for different products?
@@ -801,8 +818,11 @@ FROM sales_performance
 ORDER BY total_revenue DESC;
 ```
 Results:
+
 ![image](https://github.com/user-attachments/assets/93ed967a-1f4e-4964-bf07-54023ecb34d5)
+
 -In our case, Budget Friendly products were sold more and customers are price sensitive.
+
 Note:
 -	If premium-priced products have lower total sales revenue or lower quantity sold, they might be underperforming.
 -	If budget-friendly items dominate revenue, customers might be price-sensitive.
@@ -853,6 +873,7 @@ GROUP BY hour, item_category
 ORDER BY hour, item_category;
 ```
 Results:
+
 ![image](https://github.com/user-attachments/assets/8aa0a467-0d56-41f2-aecd-c9af54506729)
 
 -	What is the average transaction size per customer?
@@ -865,6 +886,7 @@ GROUP BY transaction_id
 ORDER BY avg_transaction_size DESC;
 ```
 Results:
+
 ![image](https://github.com/user-attachments/assets/30283f03-00d9-45a8-86f4-945a52a3b998)
 
 D). Store Location Performance Analysis
@@ -878,7 +900,9 @@ GROUP BY store_location
 ORDER BY total_revenue DESC;
 ```
 Results:
+
 ![image](https://github.com/user-attachments/assets/a1717a47-fd27-4833-a197-a6f9fe930e6d)
+
 In this case, Hell’s Kitchen has the highest revenue and Lower Manhattan has the lowest revenue.
 
 - Do different stores have different customer purchase behaviors?
@@ -893,10 +917,12 @@ GROUP BY store_location
 ORDER BY avg_transaction_value DESC;
 ```
 Results:
+
 ![image](https://github.com/user-attachments/assets/434c2176-50d2-4448-8bba-09715b1bbce9)
 
 E). Inventory & Waste Management
 - Which products experience the highest stock wastage due to low demand?
+
 Note: if we had total_stock_received then it would have helped with this formula : Stock wastage = total_stock_received - total_sold_quantity)
 ``` sql
 WITH product_sales AS (
@@ -923,6 +949,7 @@ total_sold
 FROM low_demand_products;
 ```
 Results:
+
 ![image](https://github.com/user-attachments/assets/6511c986-9365-4838-9e3b-f02fd033341a)
 
 - 	How much inventory should be stocked based on expected demand?
@@ -949,7 +976,9 @@ FROM average_weekly_sales aws
 ORDER BY recommended_inventory DESC;
 ```
 Results:
+
 ![image](https://github.com/user-attachments/assets/1aea6fed-967b-41e6-aff5-6960bdb5ce5d)
+
 f). Marketing & Promotion Effectiveness
 -	How do discounts and promotions affect product sales?
 ``` sql
@@ -973,6 +1002,7 @@ GROUP BY product_id
 ORDER BY discount_sales_percentage DESC;
 ```
 Results:
+
 ![image](https://github.com/user-attachments/assets/b40e0985-a07b-419b-9039-4bc3e9e9965d)
 
 ### Insights
