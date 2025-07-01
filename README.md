@@ -30,9 +30,19 @@ The objective of this analysis is to:
  - The initial checks of your transactions.csv dataset reveal the following:
 
 | Features | Description | Data types |
-| -------- | -------- | -------- |
+| -------- | -------- | -------- | 
 | transaction_id | Unique identifier for each transaction. | int |
-| ransaction_date | Date when the transaction occurred (MM/DD/YYYY format). | str |
+| date | Date when the transaction occurred (MM/DD/YYYY format). | object |
+| transaction_time | Time when the transaction was made (HH:MM:SS format).| object |
+| transaction_qty  | Number of units purchased in the transaction. | int |
+| store_id  | Unique identifier for the store where the purchase was made. | int |       
+| store_location |  Name of the store location. | object |
+| product_id     |  Unique identifier for each product sold. | int |
+| unit_price     |  Price per unit of the product (includes currency symbol).| float |
+| product_category | Broad classification of the product. | object |
+| product_type     | Subcategory of the product | object |
+| product_detail   | Detailed name of the specific product. | object |
+
 
 ### Tools
  - Excel
