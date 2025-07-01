@@ -566,6 +566,104 @@ print(f"Discount with highest average transaction value: {highest_avg_transactio
 
 ## Hypothesis testing:
 
+1). Does the average sales revenue differ between weekends and weekdays?
+``` python
+#H₀ (Null Hypothesis): There is no significant difference in average sales revenue between weekends and weekdays.
+#Ha (Alternative Hypothesis): There is a significant difference in average sales revenue between weekends and weekdays.
+
+import scipy.stats as stats
+weekend_mask = df['weekday'].isin(['Saturday', 'Sunday'])
+
+# Separation of sales data for weekends and weekdays
+weekend_sales = df.loc[weekend_mask, 'Total_Price']
+weekday_sales = df.loc[~weekend_mask, 'Total_Price']
+
+# We Perform an independent samples t-test
+t_statistic, p_value = stats.ttest_ind(weekend_sales, weekday_sales)
+
+print(f"T-statistic: {t_statistic}")
+print(f"P-value: {p_value}")
+
+alpha = 0.05
+if p_value < alpha:
+    print("Reject the null hypothesis. There is a significant difference in average sales revenue between weekends and weekdays.")
+else:
+    print("Fail to reject the null hypothesis. There is no significant difference in average sales revenue between weekends and weekdays.")
+```
+![image](https://github.com/user-attachments/assets/71cadaf6-7b81-4aba-90ac-0e13d88db84d)
+
+2). Does the average sales revenue differ across product categories?
+``` python
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+model = ols('Total_Price ~ C(product_category)', data=df).fit()
+# Anova 
+anova_table = sm.stats.anova_lm(model, typ=2)
+print(anova_table)
+
+alpha = 0.05
+if anova_table['PR(>F)'][0] < alpha:
+    print("Reject the null hypothesis. There is a significant difference in average sales revenue across product categories.")
+else:
+    print("Fail to reject the null hypothesis. There is no significant difference in average sales revenue across product categories.")
+```
+![image](https://github.com/user-attachments/assets/dbc27620-9277-4796-ab45-849c3bddcb4b)
+
+3). Does the average quantity sold change significantly based on price range?
+``` python
+#H₀: There is no significant difference in quantity sold across different price ranges.
+#Ha: There is a significant difference in quantity sold across different price ranges.
+
+#Calculating the correlation between unit price and transaction quantity
+correlation = df['unit_price'].corr(df['transaction_qty'])
+print(f"Correlation between Unit Price and Transaction Quantity: {correlation}")
+
+# Creation of price bins
+price_bins = [0, 10, 20, 30, 40, float('inf')]  # Define appropriate price ranges
+price_labels = ['0-10', '10-20', '20-30', '30-40', '40+']
+df['price_range'] = pd.cut(df['unit_price'], bins=price_bins, labels=price_labels, right=False)
+
+# Calculating average quantity sold per price range
+avg_qty_by_price = df.groupby('price_range')['transaction_qty'].mean()
+print(avg_qty_by_price)
+
+# Performing Anova test
+model = ols('transaction_qty ~ C(price_range)', data=df).fit()
+anova_table = sm.stats.anova_lm(model, typ=2)
+print(anova_table)
+
+alpha = 0.05
+if anova_table['PR(>F)'][0] < alpha:
+  print("Reject the null hypothesis. There is a statistically significant difference in average quantity sold across price ranges.")
+else:
+  print("Fail to reject the null hypothesis. There is no statistically significant difference in average quantity sold across price ranges.")
+```
+![image](https://github.com/user-attachments/assets/0a917fe3-1f4d-4361-a414-4702d9a3a4cc)
+
+4). Do different store locations have significantly different sales revenue?
+``` python
+#H₀: There is no significant difference in sales revenue across different stores.
+#Ha: There is a significant difference in sales revenue across different stores.
+
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
+
+model = ols('Total_Price ~ C(store_location)', data=df).fit()
+anova_table = anova_lm(model, typ=2)
+print(anova_table)
+
+alpha = 0.05
+if anova_table['PR(>F)'][0] < alpha:
+    print("Reject the null hypothesis. There is a significant difference in average sales revenue across store locations.")
+    # Performing post-hoc test (Tukey's HSD) to identify which store locations differ significantly
+    from statsmodels.sandbox.stats.multicomp import MultiComparison
+    m_comp = MultiComparison(df['Total_Price'], df['store_location'])
+    result = m_comp.tukeyhsd(alpha=0.05)
+    print(result)
+else:
+    print("Fail to reject the null hypothesis. There is no significant difference in average sales revenue across store locations.")
+```
+![image](https://github.com/user-attachments/assets/acd44f6d-bed1-4eb2-aa5a-8a108db11b6b)
 
 ### Insights
 - The highests weekly sales was on week number 31.
