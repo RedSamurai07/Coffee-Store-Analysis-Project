@@ -54,7 +54,7 @@ The objective of this analysis is to:
 | product_detail   | Detailed name of the specific product. | object |
 
 ### Tools
-- Excel : (Google Sheets)
+- Excel : Google Sheets - Check for data types, Table formatting
 - SQL : Big QueryStudio - Querying, manipulating, and managing data in relational databases in 
 - Python: Google Colab - Data Preparation and pre-processing, Exploratory Data Analysis, Descriptive Statistics, inferential Statistics, Data manipulation and Analysis(Numpy, Pandas),Visualization (Matplotlib, Seaborn), Feature Engineering, Hypothesis Testing
   
