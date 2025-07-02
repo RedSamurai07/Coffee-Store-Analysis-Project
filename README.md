@@ -26,7 +26,7 @@ Branch managers can leverage this analysis to understand which products sell mos
 **Marketing Team:** 
 The marketing team can utilize the findings to strategically plan special promotions based on peak sales periods and customer behavior. It informs decisions on introducing different flavors at various store locations to cater to diverse customer preferences, developing effective combo offers for weekdays or weekends, and tailoring discount strategies to increase customer visits and boost revenue.
 
-### 🎯Goal
+### Goal
 The objective of this analysis is to:
 1. Understand Sales Patterns – Identify peak sales hours, best-selling products, and seasonal trends.
 2. Optimize Pricing Strategy – Analyze the impact of pricing on sales volume.
