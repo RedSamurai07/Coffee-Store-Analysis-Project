@@ -6,7 +6,7 @@
 - [Goal](goal)
 - [Data Structure](data-structure)
 - [Tools](tools)
-- [Data Analysis](#data-analysis)
+- [Analysis](#analysis)
 - [Insights](insights)
 - [Recommendations](recommendations)
 
@@ -58,7 +58,7 @@ The objective of this analysis is to:
 - SQL : Big QueryStudio - Querying, manipulating, and managing data in relational databases in 
 - Python: Google Colab - Data Preparation and pre-processing, Exploratory Data Analysis, Descriptive Statistics, inferential Statistics, Data manipulation and Analysis(Numpy, Pandas),Visualization (Matplotlib, Seaborn), Feature Engineering, Hypothesis Testing
   
-### Data Analysis
+### Analysis
 1). Python
 
 - Importing Libraries
